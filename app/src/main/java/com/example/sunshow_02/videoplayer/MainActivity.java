@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.media.AudioManager;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Bundle;
 import android.os.Handler;
@@ -74,6 +75,7 @@ public class MainActivity extends Activity{
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
+
         InitUI();
         SetPlayerEvent();
         /**
@@ -83,6 +85,20 @@ public class MainActivity extends Activity{
         mVideoView.setVideoPath(video_path);
         mHandler.sendEmptyMessage(UPDATE_UI);
         mVideoView.start();
+    }
+
+    // 隐藏SystemUi
+    private void HideSystemUI(){
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT){
+            View decorView = getWindow().getDecorView();
+            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE//状态栏显示处于低能显示状态（low profile模式），状态栏上一些图标显示会被隐藏
+                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE                    //帮助应用维持一个稳定的布局
+                    | View.SYSTEM_UI_FLAG_FULLSCREEN                        //Activity全屏显示，且状态栏被隐藏覆盖掉
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY                  //开启全屏沉浸模式
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION            //Activity全屏显示，但状态栏不会被隐藏，状态栏依然可见，Activity顶端布局部分，会被状态遮住
+                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION                   //隐藏虚拟按键（导航栏），有些手机会用虚拟按键来代替物理按键（华为）
+                    );
+        }
     }
 
     private void updateTextViewWithTimeFormat(TextView tv,int millisecond){
@@ -424,6 +440,7 @@ public class MainActivity extends Activity{
          * (横屏时将videoView的大小进行拉伸以适应整个屏幕)
          */
         if (getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE){
+            HideSystemUI();
             setVideoViewSize(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);
             isFulssScreen = true;
 
